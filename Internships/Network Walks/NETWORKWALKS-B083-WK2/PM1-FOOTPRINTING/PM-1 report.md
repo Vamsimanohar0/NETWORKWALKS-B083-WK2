@@ -135,3 +135,126 @@ Address: 192.232.216.135
 ```
 
 ---
+
+## 📌 Task 4 — curl
+
+HTTP headers leak the web server, caching stack and hidden endpoints (here the WordPress
+REST API at /wp-json/). Attackers read headers to fingerprint the stack and find entry points
+without even loading the full page.
+
+### Command
+```bash
+curl -I https://networkwalks.com
+```
+
+### Screenshot
+![alt text](image-3.png)
+
+### Output
+```
+┌──(root㉿kali)-[/home/anonymous]
+└─# curl -I https://networkwalks.com
+HTTP/2 200 
+permissions-policy: private-state-token-redemption=(self "https://www.google.com" "https://www.gstatic.com" "https://recaptcha.net" "https://challenges.cloudflare.com" "https://hcaptcha.com"), private-state-token-issuance=(self "https://www.google.com" "https://www.gstatic.com" "https://recaptcha.net" "https://challenges.cloudflare.com" "https://hcaptcha.com")
+link: <https://networkwalks.com/wp-json/>; rel="https://api.w.org/", <https://networkwalks.com/wp-json/wp/v2/pages/53>; rel="alternate"; title="JSON"; type="application/json", <https://networkwalks.com/>; rel=shortlink
+set-cookie: __wpdm_client=53aa07619d5fea21129f14d516aa6e92; path=/; domain=networkwalks.com; secure; HttpOnly
+referrer-policy: no-referrer-when-downgrade
+x-endurance-cache-level: 0
+x-nginx-cache: WordPress
+content-type: text/html; charset=UTF-8
+date: Mon, 14 Sep 2026 14:45:55 GMT
+server: Apache
+
+```
+
+---
+
+## 📌 Task 5 — wafw00f
+
+`wafw00f` tells an attacker if a firewall is watching. Here the site sits behind ModSecurity
+(SpiderLabs). Knowing a WAF is present shapes the whole attack: naive attempts will be blocked
+or logged, so the attacker must adapt or try to bypass it.
+
+### Command
+```bash
+wafw00f networkwalks.com
+```
+
+### Screenshot
+![alt text](image-4.png)
+
+### Output
+```
+┌──(root㉿kali)-[/home/anonymous]
+└─# wafw00f networkwalks.com
+
+                ______
+               /      \
+              (  W00f! )
+               \  ____/
+               ,,    __            404 Hack Not Found
+           |`-.__   / /                      __     __
+           /"  _/  /_/                       \ \   / /
+          *===*    /                          \ \_/ /  405 Not Allowed
+         /     )__//                           \   /
+    /|  /     /---`                        403 Forbidden
+    \\/`   \ |                                 / _ \
+    `\    /_\\_              502 Bad Gateway  / / \ \  500 Internal Error
+      `_____``-`                             /_/   \_\\
+
+                        ~ WAFW00F : v2.3.1 ~
+        The Web Application Firewall Fingerprinting Toolkit
+    
+[*] Checking https://networkwalks.com
+[+] The site https://networkwalks.com is behind ModSecurity (SpiderLabs) WAF.
+[~] Number of requests: 2
+
+
+```
+
+---
+
+## 📌 Task 6 — dnsrecon
+
+`dnsrecon` maps the target's entire DNS footprint: mail servers, DNS software version (Bind
+9.16.23), SPF policy and cPanel service records. Each record is a potential foothold and helps an
+attacker understand the email and hosting setup.
+
+### Command
+```bash
+dnsrecon -d networkwalks.com
+```
+
+### Screenshot
+![alt text](image-5.png)
+
+### Output
+```
+┌──(root㉿kali)-[/home/anonymous]
+└─# dnsrecon -d networkwalks.com
+[*] std: Performing General Enumeration against: networkwalks.com...
+[-] DNSSEC is not configured for networkwalks.com
+[*]      SOA ns6135.hostgator.com 50.87.144.87
+[*]      NS ns6135.hostgator.com 50.87.144.87
+[*]      Bind Version for 50.87.144.87 "9.16.23-RH"
+[*]      NS ns6136.hostgator.com 192.232.216.131
+[*]      Bind Version for 192.232.216.131 "9.16.23-RH"
+[*]      MX mail.networkwalks.com 192.232.216.135
+[*]      A networkwalks.com 192.232.216.135
+[*]      TXT networkwalks.com google-site-verification=rr04eRmqHoWY3XemnizDNVK4q75X-Ij-mjgEeg-UsYI
+[*]      TXT networkwalks.com v=spf1 +a +mx +ip4:50.87.144.87 +include:websitewelcome.com ~all
+[*] Enumerating SRV Records
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.203.11 443
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.204.9 443
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.204.11 443
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.204.14 443
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.203.15 443
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.203.9 443
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.203.14 443
+[+]      SRV _autodiscover._tcp.networkwalks.com cpanelemaildiscovery.cpanel.net 184.94.204.15 443
+[+] 8 Records Found
+
+
+```
+
+---
