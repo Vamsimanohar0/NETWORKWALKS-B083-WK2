@@ -105,3 +105,33 @@ https://networkwalks.com/ [200 OK] Apache, Bootstrap[7.1], Cookies[__wpdm_client
 ```
 
 ---
+
+## 📌 Task 3 — nslookup
+
+`nslookup` turns a domain name into its real IP address (192.232.216.135). Knowing the IP lets an
+attacker scan the server directly, look up other sites on the same IP, and map the target's
+infrastructure.
+
+### Command
+```bash
+nslookup networkwalks.com
+```
+
+### Screenshot
+![nslookup](image-2.png)
+
+### Output
+```
+┌──(root㉿kali)-[/home/anonymous]
+└─# nslookup networkwalks.com
+Server:         8.8.8.8
+Address:        8.8.8.8#53
+
+Non-authoritative answer:
+Name:   networkwalks.com
+Address: 192.232.216.135
+
+
+```
+
+---
