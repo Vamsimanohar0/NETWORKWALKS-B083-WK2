@@ -43,7 +43,7 @@ ifconfig
 - **Subnet:** 10.0.0.0/24
 
 ### Screenshot
-![alt text](image-1.png)
+![alt text](image-4.png)
 
 ---
 
